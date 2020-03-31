@@ -2,7 +2,7 @@
 
 Most of the directory structure here is from [Glitter](https://github.com/Polytonic/Glitter). See the instructions there to compile and run.
 
-And most of the code is from [open.gl](https://open.gl/)/
+And most of the code is from [open.gl](https://open.gl/)
 
 ## License
 >The MIT License (MIT)
