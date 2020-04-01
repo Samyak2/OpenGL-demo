@@ -62,11 +62,12 @@ int main(int argc, char * argv[]) {
 	const char* fragmentSource = R"glsl(
 		#version 150 core
 
+		uniform vec3 triangleColor;
 		out vec4 outColor;
 
 		void main()
 		{
-			outColor = vec4(1.0, 1.0, 1.0, 1.0);
+			outColor = vec4(triangleColor, 1.0);
 		}
 	)glsl";
 
@@ -97,6 +98,10 @@ int main(int argc, char * argv[]) {
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
 	// and specify its properties (attrib_number, number of values, type of each, ..., stride, offset)
 	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+	// Get the triangleColor Uniform
+	GLint triangleColor = glGetUniformLocation(shaderProgram, "triangleColor");
+	glUniform3f(triangleColor, 1.0f, 0.0f, 0.0f);
 
 	// Enable vertex attribute array
 	glEnableVertexAttribArray(posAttrib);
