@@ -34,9 +34,9 @@ int main(int argc, char * argv[]) {
     fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
     float vertices[] = {
-        0.0f, 0.5f,
-        0.5f, -0.5f,
-        -0.5f, -0.5f
+        0.0f, 0.5f, 1.0f, 0.0f, 0.0f, // Vertex 1 at (0, 0.5) and red color
+        0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // Vertex 2 at (0.5, -0.5) and green color
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f // Vertex 3 at (-0.5f, -0.5f) and blue color
     };
 
     // create and bind a Vertex Array Object (VAO)
@@ -55,21 +55,25 @@ int main(int argc, char * argv[]) {
         #version 150 core
 
         in vec2 position;
+        in vec3 color;
+
+        out vec3 Color;
 
         void main()
         {
+            Color = color;
             gl_Position = vec4(position, 0.0, 1.0);
         }
     )glsl";
     const char* fragmentSource = R"glsl(
         #version 150 core
 
-        uniform vec3 triangleColor;
+        in vec3 Color;
         out vec4 outColor;
 
         void main()
         {
-           outColor = vec4(triangleColor, 1.0);
+           outColor = vec4(Color, 1.0);
         }
     )glsl";
 
@@ -99,14 +103,19 @@ int main(int argc, char * argv[]) {
     // Get the position attribute from shader program
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     // and specify its properties (attrib_number, number of values, type of each, ..., stride, offset)
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+
+    // Get the color attribute
+    GLint colorAttrib = glGetAttribLocation(shaderProgram, "color");
+    glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (2 * sizeof(float)));
 
     // Get the triangleColor Uniform
-    GLint triangleColor = glGetUniformLocation(shaderProgram, "triangleColor");
+    //GLint triangleColor = glGetUniformLocation(shaderProgram, "triangleColor");
     //glUniform3f(triangleColor, 1.0f, 0.0f, 0.0f);
 
     // Enable vertex attribute array
     glEnableVertexAttribArray(posAttrib);
+    glEnableVertexAttribArray(colorAttrib);
 
     GLenum errorcode = glGetError();
     if (errorcode == GL_NO_ERROR) {
@@ -117,10 +126,10 @@ int main(int argc, char * argv[]) {
     }
 
     // start a timer for fade/breathe effect
-    auto t_start = std::chrono::high_resolution_clock::now();
+    //auto t_start = std::chrono::high_resolution_clock::now();
 
     // the multiplier for breathe/fade effect, lower value makes it slower
-    float breathe_multiplier = 2.0f;
+    //float breathe_multiplier = 2.0f;
 
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false) {
@@ -131,12 +140,15 @@ int main(int argc, char * argv[]) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        auto t_now = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
+        // get time since startup
+        //auto t_now = std::chrono::high_resolution_clock::now();
+        //float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
 
-        glUniform3f(triangleColor, (sin(time * breathe_multiplier) + 1.0f) / 2.0f, 0.0f, 0.0f);
+        // change color wrt sine of time
+        //glUniform3f(triangleColor, (sin(time * breathe_multiplier) + 1.0f) / 2.0f, 0.0f, 0.0f);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // draw the arrays
+        glDrawArrays(GL_TRIANGLES, 0, 5);
 
         // Flip Buffers and Draw
         glfwSwapBuffers(mWindow);
