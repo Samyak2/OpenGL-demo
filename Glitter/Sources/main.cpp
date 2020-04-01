@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <chrono>
+
 int main(int argc, char * argv[]) {
 
     // Load GLFW and Create a Window
@@ -101,7 +103,7 @@ int main(int argc, char * argv[]) {
 
     // Get the triangleColor Uniform
     GLint triangleColor = glGetUniformLocation(shaderProgram, "triangleColor");
-    glUniform3f(triangleColor, 1.0f, 0.0f, 0.0f);
+    //glUniform3f(triangleColor, 1.0f, 0.0f, 0.0f);
 
     // Enable vertex attribute array
     glEnableVertexAttribArray(posAttrib);
@@ -114,18 +116,27 @@ int main(int argc, char * argv[]) {
         fprintf(stderr, "Some error. Error code: %d\n", errorcode);
     }
 
+    // start a timer for fade/breathe effect
+    auto t_start = std::chrono::high_resolution_clock::now();
+
+    // the multiplier for breathe/fade effect, lower value makes it slower
+    float breathe_multiplier = 2.0f;
+
     // Rendering Loop
     while (glfwWindowShouldClose(mWindow) == false) {
         if (glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(mWindow, true);
 
         // Background Fill Color
-        glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        auto t_now = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
+
+        glUniform3f(triangleColor, (sin(time * breathe_multiplier) + 1.0f) / 2.0f, 0.0f, 0.0f);
+
         glDrawArrays(GL_TRIANGLES, 0, 3);
-
-
 
         // Flip Buffers and Draw
         glfwSwapBuffers(mWindow);
